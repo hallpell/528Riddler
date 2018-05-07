@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+use Getopt::Long;
 
 # solver for: https://fivethirtyeight.com/features/pirates-monkeys-and-coconuts-oh-my/
 #
@@ -14,28 +15,42 @@
 # isn't divisible by 6, it's not going to work. Additionally, the
 # final number needs to be divisible by 7, so the final number of
 # coconuts needs to be a multiple of 42 (7*6)
+#
+# Adding generalization on top of this via command line arguments:
+#   --pirates is an integer >= 2, defaults to 7
+#   --nights is an integer >= 1, defaults to 7
+#   --verbose is a flag for more output
 
-my $verbose = 0;
-my $try = 42;
+my $verbose = '';
+my $nights = 7;
+my $pirates = 7;
+GetOptions ("pirates=i" => \$pirates,
+	    "nights=i" => \$nights,
+	    "verbose" => \$verbose)
+    or die("Error in command line arguments");
+
+my $try = $pirates * ($pirates - 1);
+
 my $flag;
 
 while (1) {
     $flag = 1;
     $current = $try;
     print "Trying $current:" if ($verbose);
-    for my $i (1..7) {
-	print "\tSubTry: $current" if ($verbose);
-	unless (($current % 6) == 0) {
+    for my $i (1..$nights) {
+	print ";SubTry: $current" if ($verbose);
+	unless (($current % ($pirates-1)) == 0) {
 	    $flag = 0;
 	    last;
 	}
+
 	print " $i" if ($verbose);
-	$current = ($current * 7 / 6) + 1;
+	$current = ($current * $pirates / ($pirates - 1)) + 1;
     }
     print "\n" if ($verbose);
     if ($flag) {
 	print "$current\n";;
 	last;
     }
-    $try += 42;
+    $try += $pirates * ($pirates-1);
 }
